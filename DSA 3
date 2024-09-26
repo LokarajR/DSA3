@@ -1,0 +1,515 @@
+1.#include <iostream>
+#include <string>
+
+class Node {
+public:
+    std::string name;
+    Node* next;
+
+    Node(const std::string& name) : name(name), next(nullptr) {}
+};
+
+class ContactList {
+private:
+    Node* head;
+
+public:
+    ContactList() : head(nullptr) {}
+
+    void createList(const std::string names[], int n) {
+        for (int i = 0; i < n; ++i) {
+            insertAtEnd(names[i]);
+        }
+    }
+
+    void insertAtEnd(const std::string& name) {
+        Node* newNode = new Node(name);
+        if (!head) {
+            head = newNode;
+            return;
+        }
+        Node* last = head;
+        while (last->next) {
+            last = last->next;
+        }
+        last->next = newNode;
+    }
+
+    void insertAtPosition(const std::string& name, int position) {
+        Node* newNode = new Node(name);
+        if (position == 0) {
+            newNode->next = head;
+            head = newNode;
+            return;
+        }
+
+        Node* current = head;
+        for (int i = 0; i < position - 1; ++i) {
+            if (!current) {
+                std::cout << "Position out of bounds." << std::endl;
+                return;
+            }
+            current = current->next;
+        }
+
+        if (!current) {
+            std::cout << "Position out of bounds." << std::endl;
+            return;
+        }
+
+        newNode->next = current->next;
+        current->next = newNode;
+    }
+
+    void deleteByName(const std::string& name) {
+        Node* current = head;
+        Node* prev = nullptr;
+
+        while (current && current->name != name) {
+            prev = current;
+            current = current->next;
+        }
+
+        if (!current) {
+            std::cout << "Contact not found." << std::endl;
+            return;
+        }
+
+        if (!prev) {
+            head = current->next;
+        } else {
+            prev->next = current->next;
+        }
+        delete current;
+    }
+
+    void deleteByPosition(int position) {
+        if (position == 0) {
+            if (head) {
+                Node* temp = head;
+                head = head->next;
+                delete temp;
+            } else {
+                std::cout << "List is empty." << std::endl;
+            }
+            return;
+        }
+
+        Node* current = head;
+        Node* prev = nullptr;
+
+        for (int i = 0; i < position; ++i) {
+            if (!current) {
+                std::cout << "Position out of bounds." << std::endl;
+                return;
+            }
+            prev = current;
+            current = current->next;
+        }
+
+        if (!current) {
+            std::cout << "Position out of bounds." << std::endl;
+            return;
+        }
+
+        prev->next = current->next;
+        delete current;
+    }
+
+    void traverse() const {
+        Node* current = head;
+        std::cout << "Contact list: ";
+        while (current) {
+            std::cout << current->name;
+            if (current->next) {
+                std::cout << " -> ";
+            }
+            current = current->next;
+        }
+        std::cout << " -> NULL" << std::endl;
+    }
+
+    int search(const std::string& name) const {
+        Node* current = head;
+        int position = 0;
+        while (current) {
+            if (current->name == name) {
+                return position;
+            }
+            current = current->next;
+            position++;
+        }
+        return -1;
+    }
+
+    ~ContactList() {
+        Node* current = head;
+        while (current) {
+            Node* next = current->next;
+            delete current;
+            current = next;
+        }
+    }
+};
+
+int main() {
+    ContactList contactList;
+
+    while (true) {
+        std::cout << "\n1. Create the list of contacts" << std::endl;
+        std::cout << "2. Insert a new contact" << std::endl;
+        std::cout << "3. Delete a contact" << std::endl;
+        std::cout << "4. Display contact list" << std::endl;
+        std::cout << "5. Search for a contact" << std::endl;
+        std::cout << "6. Exit" << std::endl;
+
+        int choice;
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                int n;
+                std::cout << "Enter the number of contacts: ";
+                std::cin >> n;
+                std::string* names = new std::string[n];
+                for (int i = 0; i < n; ++i) {
+                    std::cout << "Enter contact name " << (i + 1) << ": ";
+                    std::cin >> names[i];
+                }
+                contactList.createList(names, n);
+                delete[] names;
+                contactList.traverse();
+                break;
+            }
+            case 2: {
+                std::string name;
+                int position;
+                std::cout << "Enter the contact's name to insert: ";
+                std::cin >> name;
+                std::cout << "Enter the position (0-based index) to insert the contact: ";
+                std::cin >> position;
+                contactList.insertAtPosition(name, position);
+                contactList.traverse();
+                break;
+            }
+            case 3: {
+                char method;
+                std::cout << "Delete by name or position? (n/p): ";
+                std::cin >> method;
+                if (method == 'n') {
+                    std::string name;
+                    std::cout << "Enter the contact's name to delete: ";
+                    std::cin >> name;
+                    contactList.deleteByName(name);
+                } else if (method == 'p') {
+                    int position;
+                    std::cout << "Enter the position to delete: ";
+                    std::cin >> position;
+                    contactList.deleteByPosition(position);
+                }
+                contactList.traverse();
+                break;
+            }
+            case 4:
+                contactList.traverse();
+                break;
+            case 5: {
+                std::string name;
+                std::cout << "Enter the contact's name to search: ";
+                std::cin >> name;
+                int position = contactList.search(name);
+                if (position != -1) {
+                    std::cout << name << " found at position " << position << std::endl;
+                } else {
+                    std::cout << name << " not found." << std::endl;
+                }
+                break;
+            }
+            case 6:
+                std::cout << "Exiting the program..." << std::endl;
+                return 0;
+            default:
+                std::cout << "Invalid choice. Please try again." << std::endl;
+                break;
+        }
+    }
+
+    return 0;
+}
+
+
+
+
+
+2.#include <iostream>
+#include <string>
+
+class Node {
+public:
+    std::string name;
+    Node* next;
+    Node* prev;
+
+    Node(const std::string& name) : name(name), next(nullptr), prev(nullptr) {}
+};
+
+class ContactList {
+private:
+    Node* head;
+
+public:
+    ContactList() : head(nullptr) {}
+
+    void createList() {
+        std::string name;
+        char choice;
+        do {
+            std::cout << "Enter contact name: ";
+            std::cin >> name;
+            insertAtEnd(name);
+            std::cout << "Do you want to add another contact? (y/n): ";
+            std::cin >> choice;
+        } while (choice == 'y' || choice == 'Y');
+    }
+
+    void insertAtEnd(const std::string& name) {
+        Node* newNode = new Node(name);
+        if (!head) {
+            head = newNode;
+            return;
+        }
+        Node* last = head;
+        while (last->next) {
+            last = last->next;
+        }
+        last->next = newNode;
+        newNode->prev = last;
+    }
+
+    void insertAtPosition(const std::string& name, int position) {
+        Node* newNode = new Node(name);
+        if (position == 0) {
+            newNode->next = head;
+            if (head) {
+                head->prev = newNode;
+            }
+            head = newNode;
+            return;
+        }
+
+        Node* current = head;
+        for (int i = 0; i < position - 1; ++i) {
+            if (!current) {
+                std::cout << "Position out of bounds." << std::endl;
+                delete newNode; // Avoid memory leak
+                return;
+            }
+            current = current->next;
+        }
+
+        if (!current) {
+            std::cout << "Position out of bounds." << std::endl;
+            delete newNode; // Avoid memory leak
+            return;
+        }
+
+        newNode->next = current->next;
+        newNode->prev = current;
+        current->next = newNode;
+
+        if (newNode->next) {
+            newNode->next->prev = newNode;
+        }
+    }
+
+    void deleteByName(const std::string& name) {
+        Node* current = head;
+        while (current) {
+            if (current->name == name) {
+                if (current->prev) {
+                    current->prev->next = current->next;
+                } else {
+                    head = current->next; // Deleting head
+                }
+                if (current->next) {
+                    current->next->prev = current->prev;
+                }
+                delete current;
+                return;
+            }
+            current = current->next;
+        }
+        std::cout << "Contact not found." << std::endl;
+    }
+
+    void deleteByPosition(int position) {
+        if (position == 0) {
+            if (head) {
+                Node* temp = head;
+                head = head->next;
+                if (head) {
+                    head->prev = nullptr;
+                }
+                delete temp;
+                return;
+            } else {
+                std::cout << "List is empty." << std::endl;
+                return;
+            }
+        }
+
+        Node* current = head;
+        for (int i = 0; i < position; ++i) {
+            if (!current) {
+                std::cout << "Position out of bounds." << std::endl;
+                return;
+            }
+            current = current->next;
+        }
+
+        if (!current) {
+            std::cout << "Position out of bounds." << std::endl;
+            return;
+        }
+
+        if (current->prev) {
+            current->prev->next = current->next;
+        }
+        if (current->next) {
+            current->next->prev = current->prev;
+        }
+        delete current;
+    }
+
+    void traverseForward() const {
+        Node* current = head;
+        std::cout << "Contact list (forward): ";
+        while (current) {
+            std::cout << current->name;
+            if (current->next) {
+                std::cout << " <-> ";
+            }
+            current = current->next;
+        }
+        std::cout << " -> NULL" << std::endl;
+    }
+
+    void traverseBackward() const {
+        Node* current = head;
+        if (!current) {
+            std::cout << "Contact list is empty." << std::endl;
+            return;
+        }
+
+        // Move to the last node
+        while (current->next) {
+            current = current->next;
+        }
+
+        std::cout << "Contact list (backward): ";
+        while (current) {
+            std::cout << current->name;
+            if (current->prev) {
+                std::cout << " <-> ";
+            }
+            current = current->prev;
+        }
+        std::cout << " -> NULL" << std::endl;
+    }
+
+    void search(const std::string& name) const {
+        Node* current = head;
+        int position = 0;
+        while (current) {
+            if (current->name == name) {
+                std::cout << name << " found at position " << position << std::endl;
+                return;
+            }
+            current = current->next;
+            position++;
+        }
+        std::cout << name << " not found." << std::endl;
+    }
+
+    ~ContactList() {
+        Node* current = head;
+        while (current) {
+            Node* next = current->next;
+            delete current;
+            current = next;
+        }
+    }
+};
+
+int main() {
+    ContactList contactList;
+
+    while (true) {
+        std::cout << "\n1. Create the list of contacts" << std::endl;
+        std::cout << "2. Insert a new contact" << std::endl;
+        std::cout << "3. Delete a contact" << std::endl;
+        std::cout << "4. Traverse the list (forward and backward)" << std::endl;
+        std::cout << "5. Search for a contact" << std::endl;
+        std::cout << "6. Exit" << std::endl;
+
+        int choice;
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                contactList.createList();
+                contactList.traverseForward();
+                break;
+            case 2: {
+                std::string name;
+                int position;
+                std::cout << "Enter the contact's name to insert: ";
+                std::cin >> name;
+                std::cout << "Enter the position (0-based index) to insert the contact: ";
+                std::cin >> position;
+                contactList.insertAtPosition(name, position);
+                contactList.traverseForward();
+                break;
+            }
+            case 3: {
+                char method;
+                std::cout << "Delete by name or position? (n/p): ";
+                std::cin >> method;
+                if (method == 'n') {
+                    std::string name;
+                    std::cout << "Enter the contact's name to delete: ";
+                    std::cin >> name;
+                    contactList.deleteByName(name);
+                } else if (method == 'p') {
+                    int position;
+                    std::cout << "Enter the position to delete: ";
+                    std::cin >> position;
+                    contactList.deleteByPosition(position);
+                }
+                contactList.traverseForward();
+                break;
+            }
+            case 4:
+                contactList.traverseForward();
+                contactList.traverseBackward();
+                break;
+            case 5: {
+                std::string name;
+                std::cout << "Enter the contact's name to search: ";
+                std::cin >> name;
+                contactList.search(name);
+                break;
+            }
+            case 6:
+                std::cout << "Exiting the program..." << std::endl;
+                return 0;
+            default:
+                std::cout << "Invalid choice. Please try again." << std::endl;
+                break;
+        }
+    }
+
+    return 0;
+}
